@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session Management</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f7fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
+        }
+        h2 {
+            text-align: center;
+            color: #333333;
+        }
+        form {
+            margin-top: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555555;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #cccccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .logout-button {
+            background-color: #f44336;
+        }
+        .logout-button:hover {
+            background-color: #d73227;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background-color: #f9f9f9;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        #login-error {
+            color: red;
+            text-align: center;
+            margin-top: -15px;
+            margin-bottom: 15px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!--ESCOBER, KARLO G.-->
+    <!--12.1.24-->
+    <div class="container">
+        <div id="login-section">
+            <h2>Login</h2>
+            <form id="login-form">
+                <label for="username">Username:</label>
+                <input type="text" id="username" placeholder="Enter your username" required>
+                <label for="password">Password:</label>
+                <input type="password" id="password" placeholder="Enter your password" required>
+                <button type="submit">Login</button>
+            </form>
+            <br>
+            <p id="login-error">Invalid credentials. Try again!</p>
+        </div>
+
+        <div id="main-section">
+            <h2>Welcome, <span id="user-display"></span>!</h2>
+            <form id="string-form">
+                <label for="input-string">Enter a string:</label>
+                <input type="text" id="input-string" placeholder="Type something..." required>
+                <button type="submit">Submit</button>
+            </form>
+            <h3>Submitted Strings:</h3>
+            <ul id="submitted-strings"></ul>
+            <button class="logout-button" id="logout-button">Logout</button>
+        </div>
+    </div>
+
+    <script>
+        const validUsername = "user";
+        const validPassword = "password";
+
+        const loginSection = document.getElementById("login-section");
+        const mainSection = document.getElementById("main-section");
+        const loginForm = document.getElementById("login-form");
+        const stringForm = document.getElementById("string-form");
+        const logoutButton = document.getElementById("logout-button");
+        const loginError = document.getElementById("login-error");
+        const userDisplay = document.getElementById("user-display");
+        const submittedStrings = document.getElementById("submitted-strings");
+
+        mainSection.style.display = "none";
+
+        const initializeSession = () => {
+            const username = sessionStorage.getItem("username");
+            const strings = JSON.parse(sessionStorage.getItem("strings")) || [];
+            if (username) {
+                userDisplay.textContent = username;
+                strings.forEach(str => addStringToList(str));
+                showMainSection();
+            }
+        };
+
+        const showMainSection = () => {
+            loginSection.style.display = "none";
+            mainSection.style.display = "block";
+        };
+
+        const showLoginSection = () => {
+            loginSection.style.display = "block";
+            mainSection.style.display = "none";
+            sessionStorage.clear();
+        };
+
+        const addStringToList = (string) => {
+            const li = document.createElement("li");
+            li.textContent = string;
+            submittedStrings.appendChild(li);
+        };
+
+        loginForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            if (username === validUsername && password === validPassword) {
+                sessionStorage.setItem("username", username);
+                sessionStorage.setItem("strings", JSON.stringify([]));
+                userDisplay.textContent = username;
+                loginError.style.display = "none";
+                showMainSection();
+            } else {
+                loginError.style.display = "block";
+            }
+        });
+
+        stringForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const inputString = document.getElementById("input-string").value;
+            addStringToList(inputString);
+            const strings = JSON.parse(sessionStorage.getItem("strings")) || [];
+            strings.push(inputString);
+            sessionStorage.setItem("strings", JSON.stringify(strings));
+            document.getElementById("input-string").value = "";
+        });
+
+        logoutButton.addEventListener("click", () => {
+            showLoginSection();
+        });
+
+        initializeSession();
+    </script>
+</body>
+</html>
